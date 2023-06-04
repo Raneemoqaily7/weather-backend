@@ -3,8 +3,16 @@
 # Create your views here.
 import requests
 import folium
+import geocoder
+
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import NotFound
+
+
+from Weather.api.serializers import SearchSerializer
+from .models import Search
 
 
 
@@ -20,11 +28,54 @@ def get_by_country(req ,country):
 
         # return Response (response.json()["current"]["temp_c"])
 
+@api_view(["POST"])
+def add_country(request):
+    if request.method=="POST":
+        serializer =SearchSerializer(data =request.data)
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response (serializer.data ,status=status.HTTP_201_CREATED)
+        return Response(serializer.error , status =status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 
 @api_view(['GET'])
 def index(request):
     # Create a folium map
-    map = folium.Map(location=[19,-12],zoom_start=2)
+    address =Search.objects.all().last()
+    location =geocoder.osm(address)
+    country = location.country
+    lat= location.lat
+    lon=location.lng
+    print (country ,"country")
+    print (lat,"lat")
+    print (lon ,"lng")
+    if lat ==None or lon==None:
+         address =Search.objects.all().last()
+         address.delete()
+         return Response ( "not valid")
+    map = folium.Map(location=[19,-12],zoom_start=3)
+#     html = '''1st line<br>
+# 2nd line<br>
+# 3rd line'''
+    # iframe = folium.IFrame(html,
+    #                    width=100,
+    #                    height=100)
+
+    # popup = folium.Popup(iframe,
+    #                  max_width=100)
+
+    # folium.Marker([43.775, 11.254],
+    #                    popup=popup,tooltip="click for more").add_to(map)
+    
+    folium.Marker([lat,lng],
+                       popup=country,tooltip="click for more").add_to(map)
+   
+    
     map_html = map._repr_html_()
     
     # Construct the response data
