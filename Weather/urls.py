@@ -6,4 +6,7 @@ urlpatterns = [
     path ( 'add/',views.add_country ),
     path ( 'index/',views.index ),
     path ( 'countries/',views.get_countries ),
+    path ( 'country/<country>/days=5',views.get_details ),
+    path ( 'lat/<lat>/lon/<lon>/',views.get_location ),
+
 ]

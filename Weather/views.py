@@ -38,6 +38,27 @@ def add_country(request):
 
             return Response (serializer.data ,status=status.HTTP_201_CREATED)
         return Response(serializer.error , status =status.HTTP_400_BAD_REQUEST)
+@api_view (["GET"])
+
+def get_details(req ,country):
+    if req.method =="GET":
+       
+        url = f"https://api.weatherapi.com/v1/forecast.json?key=3858ed70819a46d0944150122233105&q={country}&days=5"
+
+        response = requests.request("GET" ,url)
+        return Response (response.json())
+
+@api_view (["GET"])
+
+def get_location(req ,lat,lon):
+    if req.method =="GET":
+       
+        url = f"https://api.weatherapi.com/v1/current.json?key=3858ed70819a46d0944150122233105&q={lat},{lon}"
+
+        response = requests.request("GET" ,url)
+        return Response (response.json())
+
+        
 
 
 @api_view(["GET"])
@@ -68,7 +89,7 @@ def index(request):
          address =Search.objects.all().last()
          address.delete()
          return Response ( "not valid")
-    map = folium.Map(location=[19,-12],zoom_start=2)
+    map = folium.Map(location=[19,-12],zoom_start=1)
 #     html = '''1st line<br>
 # 2nd line<br>
 # 3rd line'''
@@ -97,3 +118,4 @@ def index(request):
     
     # Return the response
     return Response(data)
+
